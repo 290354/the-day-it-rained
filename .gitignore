@@ -1,0 +1,20 @@
+# Node 依赖
+node_modules/
+mv/node_modules/
+
+# WorkBuddy 工作区数据
+.workbuddy/
+
+# 渲染产物、二进制依赖与素材（体积大，不入库）
+mv/bin/
+mv/build/
+mv/out/
+mv/plate/
+*.mp4
+*.jpg
+*.pak
+*.hyb
+*.zip
+*.exe
+*.dll
+*.log

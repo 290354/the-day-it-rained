@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>THE DAY IT RAINED</title>
+<style>
+  @font-face { font-family: 'CardCN'; src: local('Source Han Serif SC'), local('Songti SC'), local('SimSun'); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1920px; height: 804px; overflow: hidden; background: #000; }
+  #stage { position: relative; width: 1920px; height: 804px; overflow: hidden; background: #000; }
+  canvas { display: block; width: 1920px; height: 804px; }
+
+  /* 遮罩层 */
+  #vig {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.85;
+    background: radial-gradient(ellipse 78% 92% at 50% 48%, rgba(0,0,0,0) 42%, rgba(0,0,0,0.42) 82%, rgba(0,0,0,0.72) 100%);
+  }
+  #fade { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+
+  /* 字幕卡 */
+  #card {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; pointer-events: none;
+    opacity: 0; transition: none; will-change: opacity, transform;
+  }
+  .card-inner { text-align: center; }
+
+  .cn {
+    font-family: 'CardCN', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+    color: #f2ece1; font-weight: 400;
+    text-shadow: 0 0 26px rgba(0,0,0,0.85), 0 2px 14px rgba(0,0,0,0.9);
+    line-height: 1.32;
+  }
+  .en {
+    font-family: 'Bahnschrift Light', 'Bahnschrift', 'Segoe UI Light', 'Segoe UI', sans-serif;
+    color: rgba(233,226,214,0.82); font-weight: 300;
+    text-transform: uppercase; line-height: 1.7;
+    text-shadow: 0 0 20px rgba(0,0,0,0.9);
+  }
+  .rule {
+    height: 1px; background: linear-gradient(90deg, transparent, rgba(226,208,180,0.65), transparent);
+    margin: 26px auto;
+  }
+  .hair {
+    width: 80px; height: 1px; margin: 30px auto;
+    background: linear-gradient(90deg, transparent, rgba(222,204,176,0.46), transparent);
+  }
+  /* 主标题 */
+  .title-cn { font-size: 96px; letter-spacing: 0.34em; text-indent: 0.34em; color: #f6f1e7;
+    text-shadow: 0 0 60px rgba(255,214,150,0.18), 0 4px 30px rgba(0,0,0,0.95); }
+  .title-en { font-size: 21px; letter-spacing: 0.68em; text-indent: 0.68em; margin-top: 26px;
+    color: rgba(226,206,176,0.72); }
+  /* 叙事卡 */
+  .narr-cn { font-size: 40px; letter-spacing: 0.30em; text-indent: 0.30em; }
+  .narr-en { font-size: 15px; letter-spacing: 0.42em; text-indent: 0.42em; margin-top: 20px;
+    color: rgba(210,200,186,0.62); }
+  /* 厂牌卡 */
+  .brand-cn { font-size: 26px; letter-spacing: 0.62em; text-indent: 0.62em; color: #e8e0d2; }
+  .brand-en { font-size: 13px; letter-spacing: 0.56em; text-indent: 0.56em; margin-top: 18px;
+    color: rgba(206,196,180,0.55); }
+  /* 歌词卡 */
+  .lyric-cn { font-size: 34px; letter-spacing: 0.26em; text-indent: 0.26em; color: #efe7d8; }
+  .lyric-en { font-size: 13px; letter-spacing: 0.40em; text-indent: 0.40em; margin-top: 16px;
+    color: rgba(200,190,176,0.5); font-style: normal; }
+  /* 角标署名（场景内） */
+  #stamp {
+    position: absolute; right: 74px; bottom: 58px; text-align: right;
+    font-family: 'Bahnschrift Light','Segoe UI Light',sans-serif;
+    opacity: 0; pointer-events: none; mix-blend-mode: screen;
+  }
+  #stamp .s1 { font-size: 12px; letter-spacing: 0.44em; color: rgba(214,228,244,0.80); }
+  #stamp .s2 { font-size: 9px; letter-spacing: 0.30em; color: rgba(190,208,228,0.45); margin-top: 7px; }
+
+  /* 片尾滚动 */
+  #roll { position: absolute; left: 0; right: 0; top: 0; opacity: 0; pointer-events: none; }
+  .roll-block { text-align: center; margin-bottom: 46px; }
+  .roll-l { font-family:'Bahnschrift Light','Segoe UI Light',sans-serif; font-size: 10px;
+    letter-spacing: 0.46em; color: rgba(180,170,158,0.55); text-transform: uppercase; margin-bottom: 10px; }
+  .roll-v { font-family:'CardCN','Source Han Serif SC','SimSun',serif; font-size: 21px;
+    letter-spacing: 0.24em; color: #ece5d8; text-indent: 0.24em; }
+  .roll-v2 { font-family:'Bahnschrift Light','Segoe UI Light',sans-serif; font-size: 13px;
+    letter-spacing: 0.34em; color: rgba(226,216,200,0.7); text-indent: 0.34em; margin-top: 6px; }
+  .big-sign { text-align:center; }
+  .big-sign .a { font-family:'Bahnschrift Light','Segoe UI Light',sans-serif; font-size: 40px;
+    letter-spacing: 0.5em; color: #f4efe4; text-indent: 0.5em; }
+  .big-sign .b { font-family:'CardCN','SimSun',serif; font-size: 15px; letter-spacing: 0.42em;
+    color: rgba(214,200,180,0.6); margin-top: 16px; text-indent: 0.42em; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c"></canvas>
+  <div id="vig"></div>
+  <div id="card"></div>
+  <div id="stamp"><div class="s1">DESIGNED BY DEEPSEEK</div><div class="s2">VISUAL SYSTEM · FRAME BY FRAME</div></div>
+  <div id="roll"></div>
+  <div id="fade"></div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/build/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="./main.js"></script>
+</body>
+</html>
